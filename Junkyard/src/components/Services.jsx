@@ -85,8 +85,7 @@ const Services = () => (
           icon={<BsShieldFillCheck fontSize={21} className="text-white" />}
           subtitle="Organic waste is actually good for the planet and rarely harms it. That being said, the environmental benefits of recycling biodegradable waste (like food) in a specific container is worthwhile. Making compost is simple, all it requires is an organic waste bin and time. Then that compost can be used for planting, gardening, and more! "
         />
-
-        <footer className="text-white">Made with ❤️ by <span>@SAMBITSARGAM</span></footer>
+        
       </div>
     </div>
 
