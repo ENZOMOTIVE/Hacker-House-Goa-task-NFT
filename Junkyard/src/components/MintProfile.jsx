@@ -111,7 +111,7 @@ const MintWaste = () => {
         <div
           style={{
             background: "#2c2c54", // Dark background for the form
-            color: "white",
+            color: "black",
             padding: "20px",
             borderRadius: "16px",
             boxShadow: "0 4px 30px rgba(224, 86, 253, 0.6)", // Pink shadow-like outline
