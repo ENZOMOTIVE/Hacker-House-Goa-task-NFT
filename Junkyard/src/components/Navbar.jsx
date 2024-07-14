@@ -6,7 +6,6 @@ import walletConnectModule from "@web3-onboard/walletconnect";
 import injectedModule from "@web3-onboard/injected-wallets";
 import Onboard from "@web3-onboard/core";
 
-
 const walletConnect = walletConnectModule();
 const injected = injectedModule();
 
@@ -42,14 +41,16 @@ const NavBarItem = ({ title, classprops }) => (
 );
 
 const Navbar = () => {
-  const [toggleMenu, setToggleMenu] = React.useState(false);
+  const [toggleMenu, setToggleMenu] = useState(false);
   const [account, setAccount] = useState();
+  const [sdkInfo, setSdkInfo] = useState(null); // State to hold SDK information
 
   const connectWallet = async () => {
     try {
       const wallets = await onboard.connectWallet();
-      const { accounts } = wallets[0];
+      const { accounts, name } = wallets[0];
       setAccount(accounts[0].address);
+      setSdkInfo(name); // Set SDK info to the connected wallet name
     } catch (error) {
       console.error(error);
     }
@@ -62,15 +63,21 @@ const Navbar = () => {
         <Link to="/" className="navbar-item">Home</Link>
         <Link to="/create" className="navbar-item">Upload-waste</Link>
         <Link to="/explore" className="navbar-item">Marketplace</Link>
-        <button
-          type="button"
-          onClick={connectWallet}
-          className="flex flex-row justify-center items-center button-primary p-3 rounded-full cursor-pointer"
-        >
-          <p className="text-2xl font-semibold py-2 px-6">
-            {account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : "Connect Wallet"}
-          </p>
-        </button>
+        {account && (
+          <li className="flex items-center">
+            <p className="text-2xl font-semibold py-2 px-6">{`${account.slice(0, 6)}...${account.slice(-4)}`}</p>
+            <span className="text-xs text-gray-400 ml-2">{sdkInfo}</span>
+          </li>
+        )}
+        {!account && (
+          <button
+            type="button"
+            onClick={connectWallet}
+            className="flex flex-row justify-center items-center button-primary p-3 rounded-full cursor-pointer"
+          >
+            <p className="text-2xl font-semibold py-2 px-6">Connect Wallet</p>
+          </button>
+        )}
       </ul>
       <div className="flex relative">
         {!toggleMenu && (
@@ -87,6 +94,16 @@ const Navbar = () => {
             <li className="text-xl w-full my-2"><AiOutlineClose onClick={() => setToggleMenu(false)} /></li>
             {["Home", "Create Waste", "Explore", "About"].map(
               (item, index) => <NavBarItem key={item + index} title={item} classprops="my-2 text-lg" />,
+            )}
+            {account && (
+              <li className="text-lg my-2">Connected with {sdkInfo}</li>
+            )}
+            {!account && (
+              <li className="text-lg my-2">
+                <button onClick={connectWallet} className="text-white">
+                  Connect Wallet
+                </button>
+              </li>
             )}
           </ul>
         )}
