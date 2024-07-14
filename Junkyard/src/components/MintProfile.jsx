@@ -150,6 +150,8 @@ const MintWaste = () => {
           <textarea
             placeholder="Description of waste"
             style={{
+              color:"white",
+              background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
@@ -163,6 +165,8 @@ const MintWaste = () => {
           <input
             placeholder="Enter your Country / Region"
             style={{
+              color:"white",
+              background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
@@ -175,6 +179,8 @@ const MintWaste = () => {
           <input
             placeholder="Enter Address of Collection Point"
             style={{
+              color:"white",
+              background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
@@ -187,6 +193,8 @@ const MintWaste = () => {
           <input
             placeholder="Weight in Kg"
             style={{
+              color:"white",
+              background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
@@ -199,6 +207,8 @@ const MintWaste = () => {
           <input
             placeholder="Price in ETH, if free put 0"
             style={{
+              color:"white",
+              background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
@@ -210,11 +220,13 @@ const MintWaste = () => {
           />
           <div className="MintNFT" style={{ marginTop: "15px" }}>
             <form>
-              <h3>Select a picture of the waste</h3>
+              <h3 style={{ color: "white" }}>Select a picture of the waste</h3>
               <input
                 type="file"
                 onChange={handleFileUpload}
                 style={{
+                  background: "#1d1f35",
+                  color: "white",
                   marginTop: "15px",
                   padding: "10px",
                   borderRadius: "8px",
@@ -245,6 +257,7 @@ const MintWaste = () => {
           <button
             onClick={(e) => mintNFTToken(e, uploadedFile)}
             style={{
+              
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
