@@ -1,8 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import walletConnectModule from "@web3-onboard/walletconnect";
+import injectedModule from "@web3-onboard/injected-wallets";
+import Onboard from "@web3-onboard/core";
 import logo from "../assets/logo.png";
+
+const walletConnect = walletConnectModule();
+const injected = injectedModule();
+
+const modules = [walletConnect, injected];
+
+const RPC_URL = "https://rpc.ankr.com/scroll_sepolia_testnet";
+
+const onboard = Onboard({
+  wallets: modules,
+  chains: [
+    {
+      id: "0x8274f",
+      token: "ETH",
+      namespace: "evm",
+      label: "Scroll Testnet",
+      rpcUrl: RPC_URL,
+    },
+  ],
+  appMetadata: {
+    name: "RECYCLE",
+    icon: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    description: "Recycle waste and save our environment",
+    recommendedInjectedWallets: [
+      { name: "Coinbase", url: "https://wallet.coinbase.com/" },
+      { name: "MetaMask", url: "https://metamask.io" },
+    ],
+  },
+});
 
 const NavBarItem = ({ title, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>{title}</li>
@@ -10,22 +43,40 @@ const NavBarItem = ({ title, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = React.useState(false);
+  const [account, setAccount] = useState();
+
+  const connectWallet = async () => {
+    try {
+      const wallets = await onboard.connectWallet();
+      const { accounts } = wallets[0];
+      setAccount(accounts[0].address);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
       <div className="md:flex-[0.5] flex-initial justify-center items-center">
-        <img src={logo} alt="logo" className="sm:w-10 lg:w-24  cursor-pointer" />
+        <img src={logo} alt="logo" className="sm:w-10 lg:w-24 cursor-pointer" />
       </div>
-      <ul className="text-white lg:text-3xl md:flex hidden  items-center flex-initial">
+      <ul className="text-white lg:text-3xl md:flex hidden items-center flex-initial">
         <Link to="/">Home</Link>
         <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <Link to="/create">Create-waste</Link>
         <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <Link to="/explore">Marketplace</Link>
         <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-       
         <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-
+        <button
+          type="button"
+          onClick={connectWallet}
+          className="flex flex-row justify-center items-center bg-green-300 p-3 rounded-full cursor-pointer hover:bg-green-800 hover:text-white"
+        >
+          <p className="text-black text-2xl font-semibold py-2 px-6 hover:text-white">
+            {account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : "Connect Wallet"}
+          </p>
+        </button>
       </ul>
       <div className="flex relative">
         {!toggleMenu && (
@@ -43,6 +94,15 @@ const Navbar = () => {
             {["Home", "Create Waste", "Explore", "About"].map(
               (item, index) => <NavBarItem key={item + index} title={item} classprops="my-2 text-lg" />,
             )}
+            <button
+              type="button"
+              onClick={connectWallet}
+              className="flex flex-row justify-center items-center bg-green-300 p-3 rounded-full cursor-pointer hover:bg-green-800 hover:text-white"
+            >
+              <p className="text-black text-2xl font-semibold py-2 px-6 hover:text-white">
+                {account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : "Connect Wallet"}
+              </p>
+            </button>
           </ul>
         )}
       </div>
