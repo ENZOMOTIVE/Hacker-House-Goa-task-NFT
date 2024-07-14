@@ -12,6 +12,7 @@ const injected = injectedModule();
 const modules = [walletConnect, injected];
 
 const RPC_URL = "https://rpc.ankr.com/scroll_sepolia_testnet";
+const CORE_URL = "https://rpc.test.btcs.network	";
 
 const onboard = Onboard({
   wallets: modules,
@@ -23,6 +24,15 @@ const onboard = Onboard({
       label: "Scroll Testnet",
       rpcUrl: RPC_URL,
     },
+    {
+      id: "0x45b",
+      token: "tCORE",
+      namespace: "evm",
+      label: "Core Blockchain",
+      rpcUrl: CORE_URL,
+    }
+    
+     
   ],
   appMetadata: {
     name: "RECYCLE",
