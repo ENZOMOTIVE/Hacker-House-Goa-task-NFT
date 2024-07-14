@@ -64,7 +64,7 @@ const Navbar = () => {
         <Link to="/create" className="navbar-item">Upload-waste</Link>
         <Link to="/explore" className="navbar-item">Marketplace</Link>
         {!account && (
-          <button onClick={connectWallet} className="text-white">
+          <button onClick={connectWallet} className="text-white bg-pink-500 hover:bg-pink-600 rounded-md py-2 px-4">
             Connect Wallet
           </button>
         )}
@@ -96,7 +96,7 @@ const Navbar = () => {
             )}
             {!account && (
               <li className="text-lg my-2">
-                <button onClick={connectWallet} className="text-white">
+                <button onClick={connectWallet} className="text-white bg-pink-500 hover:bg-pink-600 rounded-md py-2 px-4">
                   Connect Wallet
                 </button>
               </li>
