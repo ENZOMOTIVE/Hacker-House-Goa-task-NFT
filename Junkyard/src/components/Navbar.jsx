@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import walletConnectModule from "@web3-onboard/walletconnect";
 import injectedModule from "@web3-onboard/injected-wallets";
 import Onboard from "@web3-onboard/core";
-import logo from "../assets/logo.png";
+
 
 const walletConnect = walletConnectModule();
 const injected = injectedModule();
@@ -57,12 +57,10 @@ const Navbar = () => {
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4 navbar-bg">
-      <div className="md:flex-[0.5] flex-initial justify-center items-center">
-        <img src={logo} alt="logo" className="sm:w-10 lg:w-24 cursor-pointer" />
-      </div>
+      
       <ul className="text-white lg:text-3xl md:flex hidden items-center flex-grow justify-around">
         <Link to="/" className="navbar-item">Home</Link>
-        <Link to="/create" className="navbar-item">Create-waste</Link>
+        <Link to="/create" className="navbar-item">Upload-waste</Link>
         <Link to="/explore" className="navbar-item">Marketplace</Link>
         <button
           type="button"
