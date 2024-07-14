@@ -63,20 +63,16 @@ const Navbar = () => {
         <Link to="/" className="navbar-item">Home</Link>
         <Link to="/create" className="navbar-item">Upload-waste</Link>
         <Link to="/explore" className="navbar-item">Marketplace</Link>
+        {!account && (
+          <button onClick={connectWallet} className="text-white">
+            Connect Wallet
+          </button>
+        )}
         {account && (
           <li className="flex items-center">
             <p className="text-2xl font-semibold py-2 px-6">{`${account.slice(0, 6)}...${account.slice(-4)}`}</p>
             <span className="text-xs text-gray-400 ml-2">{sdkInfo}</span>
           </li>
-        )}
-        {!account && (
-          <button
-            type="button"
-            onClick={connectWallet}
-            className="flex flex-row justify-center items-center button-primary p-3 rounded-full cursor-pointer"
-          >
-            <p className="text-2xl font-semibold py-2 px-6">Connect Wallet</p>
-          </button>
         )}
       </ul>
       <div className="flex relative">
