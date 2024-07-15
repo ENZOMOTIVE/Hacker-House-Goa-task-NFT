@@ -1,24 +1,15 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-shadow */
 import React, { useState } from "react";
-import { NFTStorage } from "nft.storage";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import Waste from "../utils/Waste.json";
 import { wastemarketplaceAddress } from "../../config";
+import axios from "axios";
 
-// eslint-disable-next-line max-len
-const APIKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDllMUUyY0YxODI2NTMwZDkyZThBM0I2MzFmMTRlQkUwQjUzMDYzMkIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY2MzQzNzQ0NTg3MCwibmFtZSI6IlJFQ1lDTEUgIn0.LCcph8Eym4RgSDE1zVuKXNWYn-WrwBNRqUFxl6bk-6o";
+const PINATA_API_KEY = "49f451eafcababfc0228";
+const PINATA_SECRET_API_KEY = "828d747017097d55e54b66ef67c65e07194b38514fa3eb53342882d3e31a2c6c";
 
-/** rewrite ipfs:// uri to dweb.link gateway URLs
-function makeGatewayURL(ipfsURI) {
-  return ipfsURI.replace(/^ipfs:\/\//, "https://dweb.link/ipfs/");
-}
- */
-
-const MintWaste = () => {
+const MintProfile = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
   const [uploadedFile, setUploadedFile] = useState();
@@ -26,10 +17,16 @@ const MintWaste = () => {
   const [metaDataURL, setMetaDataURl] = useState();
   const [txURL, setTxURL] = useState();
   const [txStatus, setTxStatus] = useState();
-  const [formInput, updateFormInput] = useState({ name: "plastic", description: "", country: "", weight: "", collectionPoint: "", price: "" });
+  const [formInput, updateFormInput] = useState({
+    name: "",
+    description: "",
+    country: "",
+    weight: "",
+    collectionPoint: "",
+    price: "",
+  });
 
   const handleFileUpload = (event) => {
-    console.log("file for upload selected...");
     setUploadedFile(event.target.files[0]);
     setTxStatus("");
     setImageView("");
@@ -40,84 +37,98 @@ const MintWaste = () => {
   const uploadNFTContent = async (inputFile) => {
     const { name, description, country, weight, collectionPoint, price } = formInput;
     if (!name || !description || !country || !weight || !collectionPoint || !inputFile) return;
-    const nftStorage = new NFTStorage({ token: APIKEY, });
+
+    const data = new FormData();
+    data.append("file", inputFile);
+
+    const metadata = JSON.stringify({
+      name: name,
+      description: description,
+      keyvalues: {
+        country: country,
+        collectionPoint: collectionPoint,
+        weight: weight,
+        price: price,
+      },
+    });
+    data.append("pinataMetadata", metadata);
+
+    const options = JSON.stringify({
+      cidVersion: 1,
+    });
+    data.append("pinataOptions", options);
+
     try {
-      console.log("Trying to upload asset to ipfs");
-      setTxStatus("Uploading Item to IPFS & Filecoin via NFT.storage.");
-      const metaData = await nftStorage.store({
-        name,
-        description,
-        image: inputFile,
-        properties: {
-          country,
-          collectionPoint,
-          weight,
-          price
-        },
+      setTxStatus("Uploading Item to IPFS via Pinata.");
+      const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', data, {
+        maxBodyLength: 'Infinity',
+        headers: {
+          'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+          'pinata_api_key': PINATA_API_KEY,
+          'pinata_secret_api_key': PINATA_SECRET_API_KEY
+        }
       });
-      setMetaDataURl(metaData.url);
-      console.log("metadata is: ", { metaData });
+      const metaData = res.data;
+      setMetaDataURl(`https://gateway.pinata.cloud/ipfs/${metaData.IpfsHash}`);
       return metaData;
     } catch (error) {
-      setErrorMessage("Could not save Waste to NFT.Storage - Aborted minting Waste.");
+      setErrorMessage("Could not save Waste to Pinata - Aborted minting Waste.");
       console.log("Error Uploading Content", error);
     }
   };
 
   const sendTxToBlockchain = async (metadata) => {
     try {
-      setTxStatus("Adding transaction to KEVM Polygon Testnet Blockchain.");
+      setTxStatus("Adding transaction to CORE Blockchain.");
       const web3Modal = new Web3Modal();
       const connection = await web3Modal.connect();
       const provider = new ethers.providers.Web3Provider(connection);
 
       const price = ethers.utils.parseUnits(formInput.price, "ether");
       const connectedContract = new ethers.Contract(wastemarketplaceAddress, Waste.abi, provider.getSigner());
-      console.log("Connected to contract", wastemarketplaceAddress);
-      console.log("IPFS blockchain uri is ", metadata.url);
-
-      const mintNFTTx = await connectedContract.createToken(metadata.url, price);
-      console.log("Waste successfully created and sent to Blockchain");
-      // await mintNFTTx.wait();
+      const mintNFTTx = await connectedContract.createToken(`https://gateway.pinata.cloud/ipfs/${metadata.IpfsHash}`, price);
       return mintNFTTx;
     } catch (error) {
-      setErrorMessage("Failed to send tx to  ZKEVM Polygon Testnet.");
+      setErrorMessage("Failed to send tx to CORE Blockchain.");
       console.log(error);
     }
   };
 
   const previewNFT = (metaData, mintNFTTx) => {
-    console.log("getIPFSGatewayURL2 two is ...");
-    const imgViewString = getIPFSGatewayURL(metaData.data.image.pathname);
-    console.log("image ipfs path is", imgViewString);
+    if (!metaData || !metaData.IpfsHash) {
+      setErrorMessage("Metadata is undefined or does not contain IpfsHash property");
+      return;
+    }
+
+    const imgViewString = `https://gateway.pinata.cloud/ipfs/${metaData.IpfsHash}`;
     setImageView(imgViewString);
-    setMetaDataURl(getIPFSGatewayURL(metaData.url));
-    setTxURL(`https://testnet-zkevm.polygonscan.com/tx/${mintNFTTx.hash}`);
-    setTxStatus("Waste registration was successfully!");
-    console.log("Preview details completed");
+    setMetaDataURl(imgViewString);
+
+    setTxURL(`https://explorer.coredao.org/tx/${mintNFTTx.hash}`);
+    setTxStatus("Waste registration was successful!");
   };
 
-  const mintNFTToken = async (e, uploadedFile) => {
+  const mintNFTToken = async (e) => {
     e.preventDefault();
-    // 1. upload NFT content via NFT.storage
     const metaData = await uploadNFTContent(uploadedFile);
 
-    // 2. Mint a NFT token on Polygon
+    if (!metaData) {
+      setErrorMessage("Failed to upload content. MetaData is undefined.");
+      return;
+    }
+
     const mintNFTTx = await sendTxToBlockchain(metaData);
 
-    // 3. preview the minted nft
+    if (!mintNFTTx) {
+      setErrorMessage("Failed to send transaction to blockchain.");
+      return;
+    }
+
     previewNFT(metaData, mintNFTTx);
 
     navigate("/explore");
   };
 
-  const getIPFSGatewayURL = (ipfsURL) => {
-    const urlArray = ipfsURL.split("/");
-    // console.log("urlArray = ", urlArray);
-    const ipfsGateWayURL = `https://${urlArray[2]}.ipfs.nftstorage.link/${urlArray[3]}`;
-    // console.log("ipfsGateWayURL = ", ipfsGateWayURL)
-    return ipfsGateWayURL;
-  };
   return (
     <div
       style={{
@@ -125,7 +136,7 @@ const MintWaste = () => {
         color: "white",
         minHeight: "100vh",
         padding: "20px",
-        fontFamily: "'Open Sans', sans-serif"
+        fontFamily: "'Open Sans', sans-serif",
       }}
     >
       <div style={{ textAlign: "center", fontSize: "2rem", fontWeight: "bold", marginTop: "10px" }}>
@@ -145,7 +156,7 @@ const MintWaste = () => {
             width: "50%",
             display: "flex",
             flexDirection: "column",
-            paddingBottom: "12px"
+            paddingBottom: "12px",
           }}
         >
           <select
@@ -155,7 +166,7 @@ const MintWaste = () => {
               borderRadius: "8px",
               border: "none",
               width: "100%",
-              fontSize: "1rem"
+              fontSize: "1rem",
             }}
             onChange={(e) => updateFormInput({ ...formInput, name: e.target.value })}
           >
@@ -174,14 +185,14 @@ const MintWaste = () => {
           <textarea
             placeholder="Description of waste"
             style={{
-              color:"white",
+              color: "white",
               background: "#1d1f35",
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
               border: "none",
               width: "100%",
-              fontSize: "1rem"
+              fontSize: "1rem",
             }}
             onChange={(e) => updateFormInput({ ...formInput, description: e.target.value })}
             rows={2}
@@ -189,116 +200,98 @@ const MintWaste = () => {
           <input
             placeholder="Enter your Country / Region"
             style={{
-              color:"white",
+              color: "white",
               background: "#1d1f35",
-              marginTop: "15px",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              width: "100%",
-              fontSize: "1rem"
-            }}
-            onChange={(e) => updateFormInput({ ...formInput, country: e.target.value })}
-          />
-          <input
-            placeholder="Enter Address of Collection Point"
-            style={{
-              color:"white",
-              background: "#1d1f35",
-              marginTop: "15px",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              width: "100%",
-              fontSize: "1rem"
-            }}
-            onChange={(e) => updateFormInput({ ...formInput, collectionPoint: e.target.value })}
-          />
-          <input
-            placeholder="Weight in Kg"
-            style={{
-              color:"white",
-              background: "#1d1f35",
-              marginTop: "15px",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              width: "100%",
-              fontSize: "1rem"
-            }}
-            onChange={(e) => updateFormInput({ ...formInput, weight: e.target.value })}
-          />
-          <input
-            placeholder="Price in ETH, if free put 0"
-            style={{
-              color:"white",
-              background: "#1d1f35",
-              marginTop: "15px",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              width: "100%",
-              fontSize: "1rem"
-            }}
-            onChange={(e) => updateFormInput({ ...formInput, price: e.target.value })}
-          />
-          <div className="MintNFT" style={{ marginTop: "15px" }}>
-            <form>
-              <h3 style={{ color: "white" }}>Select a picture of the waste</h3>
-              <input
-                type="file"
-                onChange={handleFileUpload}
-                style={{
-                  background: "#1d1f35",
-                  color: "white",
-                  marginTop: "15px",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  border: "none",
-                  width: "100%",
-                  fontSize: "1rem"
-                }}
-              />
-            </form>
-            {txStatus && <p>{txStatus}</p>}
-            {metaDataURL && <p><a href={metaDataURL} style={{ color: "blue" }}>Metadata on IPFS</a></p>}
-            {txURL && <p><a href={txURL} style={{ color: "blue" }}>See the mint transaction</a></p>}
-            {errorMessage}
-            {imageView && (
-              <iframe
-                className="mb-10"
-                title="Ebook"
-                src={imageView}
-                alt="NFT preview"
-                frameBorder="0"
-                scrolling="auto"
-                height="50%"
-                width="100%"
-                style={{ marginTop: "15px" }}
-              />
-            )}
-          </div>
-          <button
-            onClick={(e) => mintNFTToken(e, uploadedFile)}
-            style={{
-              
               marginTop: "15px",
               padding: "10px",
               borderRadius: "8px",
               border: "none",
               width: "100%",
               fontSize: "1rem",
-              background: "#1d1f35",
-              color: "white",
-              cursor: "pointer"
             }}
+            onChange={(e) => updateFormInput({ ...formInput, country: e.target.value })}
+          />
+          <input
+            placeholder="Enter Address of Collection Point"
+            style={{
+              color: "white",
+              background: "#1d1f35",
+              marginTop: "15px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              width: "100%",
+              fontSize: "1rem",
+            }}
+            onChange={(e) => updateFormInput({ ...formInput, collectionPoint: e.target.value })}
+          />
+          <input
+            placeholder="Weight in Kg"
+            style={{
+              color: "white",
+              background: "#1d1f35",
+              marginTop: "15px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              width: "100%",
+              fontSize: "1rem",
+            }}
+            onChange={(e) => updateFormInput({ ...formInput, weight: e.target.value })}
+          />
+          <input
+            placeholder="Price in ETH, if free put 0"
+            style={{
+              color: "white",
+              background: "#1d1f35",
+              marginTop: "15px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              width: "100%",
+              fontSize: "1rem",
+            }}
+            onChange={(e) => updateFormInput({ ...formInput, price: e.target.value })}
+          />
+          <input
+            type="file"
+            style={{
+              color: "white",
+              background: "#1d1f35",
+              marginTop: "15px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              width: "100%",
+              fontSize: "1rem",
+            }}
+            onChange={(e) => handleFileUpload(e)}
+          />
+          {txStatus ? (
+            <div style={{ marginTop: "15px", fontSize: "1.2rem", fontWeight: "bold" }}>{txStatus}</div>
+          ) : null}
+          <button
+            style={{
+              marginTop: "15px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              background: "#78e08f",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              cursor: "pointer",
+              transition: "background 0.3s ease",
+            }}
+            onClick={mintNFTToken}
           >
             Register Waste
           </button>
+          {errorMessage ? <p>{errorMessage}</p> : null}
         </div>
       </div>
     </div>
   );
 };
 
-export default MintWaste;
+export default MintProfile;
