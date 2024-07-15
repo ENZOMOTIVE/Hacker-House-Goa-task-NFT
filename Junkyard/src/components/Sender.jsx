@@ -30,12 +30,12 @@ export default function Sender() {
   const zkrpcurl = "https://rpc.public.zkevm-test.net";
   const lineaurl = "https://rpc.goerli.linea.build/";
 
-  const coreurl = "https://rpc.test.btcs.network	";
+  const coreurl = "https://rpc.test.btcs.network";
 
   async function loadWaste() {
     /* create a generic provider and query for Wastes */
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://rpc.ankr.com/scroll_sepolia_testnet"
+      "https://rpc.test.btcs.network"
     );
     const contract = new ethers.Contract(
       wastemarketplaceAddress,
