@@ -1,12 +1,5 @@
-# GreenLink: Revolutionizing Waste Recycling through Blockchain and Sustainability
+# Junkyard3.O: A web3 Approach to sell waste
 
-## Introduction
-
-GreenLink is a revolutionary project that aims to transform waste recycling practices by leveraging blockchain technology and sustainability principles. In a world facing increasing environmental challenges, GreenLink provides a decentralized marketplace where individuals, organizations, and communities can participate in responsible waste management while promoting a circular economy model.
-
-## Overview
-
-GreenLink introduces a decentralized platform that facilitates the buying, selling, and exchange of recyclable materials, fostering transparency, efficiency, and accountability in the recycling ecosystem. By categorizing recyclable items and implementing zero-knowledge proof verification, GreenLink ensures the privacy and security of user data while promoting sustainable waste segregation and management practices.
 
 ## Key Features
 
