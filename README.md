@@ -1,28 +1,40 @@
 # Hacker House Goa Task NFT
 
-`Hacker-House-Goa-task-NFT` is a React-based application with frontend source files and package metadata for local development.
+## Project Tags
+
+- `Full Stack`
+- `Protocol`
+
+## Overview
+
+Hacker House Goa Task NFT is a full-stack application with separate frontend and backend pieces.
 
 ## Features
 
-- React-based frontend with a local development workflow
+- User-facing frontend or app interface
+- Backend service, API, websocket, bot, or server workflow
 
 ## Tech Stack
 
 - React
 - Vite
+- Node.js
+- JavaScript
+- HTML
+- CSS
 
 ## Project Structure
 
-- `Junkyard` - project directory
-- `README.md` - project documentation
+- `Junkyard` - project file or directory
 
 ## Getting Started
 
 ### Prerequisites
 
+- Git
 - Node.js 18+
 
-### Setup
+### Setup and Run
 
 ```bash
 git clone https://github.com/ENZOMOTIVE/Hacker-House-Goa-task-NFT.git
@@ -35,30 +47,30 @@ npm install
 npm run dev
 ```
 
-## Available Commands
+## Commands
 
-- `Junkyard/package.json` - scripts: `dev`, `build`, `serve`
+- `Junkyard/package.json`: `dev`, `build`, `serve`
 
 ## Configuration
 
-- No required environment variables are documented yet. Add them here when the project needs configuration.
+- Document required service ports, database URLs, and API credentials before deployment.
 
 ## Testing and Quality
 
 - From `Junkyard`, run `npm run build`.
 
-## Roadmap
+## Documentation Notes
 
-- Keep setup instructions aligned with the actual project workflow.
-- Add screenshots, architecture notes, or API examples as the implementation grows.
-- Document deployment steps once the hosting target is finalized.
+- Keep this README aligned with the actual source layout and commands.
+- Add screenshots, API examples, contract addresses, or deployment links when they become stable.
+- Update the project tags when the scope changes.
 
 ## Contributing
 
-1. Create a feature branch.
-2. Make focused changes and update documentation when behavior changes.
+1. Create a focused branch for the change.
+2. Update code and documentation together.
 3. Run the relevant checks before opening a pull request.
 
 ## License
 
-No license file is currently included. Add one before distributing or reusing this project publicly.
+No license file is currently committed. Add one before distributing this project publicly.
